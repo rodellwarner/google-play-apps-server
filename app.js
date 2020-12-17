@@ -8,31 +8,58 @@ app.use(morgan("common"));
 const apps = require("./playstore.js");
 
 app.get("/apps", (req, res) => {
-  const { sort, genres } = req.query;
+  const sort = req.query.sort;
+  const genres = req.query.genres;
+  // const { sort, genres } = req.query;
 
-  // let results = apps.filter((theAppBeingConsidered) =>
-  //   theAppBeingConsidered.App.toLowerCase()
-  // );
+  if (req.query) {
+    if (genres) {
+      if (
+        !["Action", "Puzzle", "Strategy", "Casual", "Arcade", "Card"].includes(
+          genres
+        )
+      ) {
+        return res
+          .status(400)
+          .send(
+            "Genre must be one of Action, Puzzle, Strategy, Casual, Arcade, Card"
+          );
+      }
 
-  if (sort) {
-    if (!["rating", "app"].includes(sort)) {
-      return res.status(400).send("Sort must be one of rating or app");
+      if (
+        ["Action", "Puzzle", "Strategy", "Casual", "Arcade", "Card"].includes(
+          genres
+        )
+      ) {
+        const selectedGenres = apps.filter((particularApp) => {
+          return particularApp.Genres === genres;
+        });
+        res.json(selectedGenres);
+      }
+    }
+
+    if (sort) {
+      // I understand the line below now. It was confusing to me before. It reads like this:  "If it is not true that
+      // the array ["rating", "app"] includes the variable named sort, which is defined as whatever is entered at req.query.sort, then return..."
+      if (!["rating", "app"].includes(sort)) {
+        return res.status(400).send("Sort must be one of rating or app");
+      }
+
+      if (sort === "app") {
+        const sortedApps = apps.sort((a, b) =>
+          a.App > b.App ? 1 : b.App > a.App ? -1 : 0
+        );
+        res.json(sortedApps);
+      }
+
+      if (sort === "rating") {
+        const sortedRatings = apps.sort((a, b) =>
+          b.Rating > a.Rating ? 1 : a.Rating > b.Rating ? -1 : 0
+        );
+        res.json(sortedRatings);
+      }
     }
   }
-
-  const sortedApps = apps.sort((a, b) =>
-    a.App > b.App ? 1 : b.App > a.App ? -1 : 0
-  );
-
-  if (sort) {
-    if (["app"].includes(sort)) {
-      res.json(sortedApps);
-    }
-  }
-
-  // if (sort) {
-  //   if (["rating"].includes(sort)) {}
-  // }
 
   res.json(apps);
 });
