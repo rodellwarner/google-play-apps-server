@@ -49,10 +49,10 @@ app.get("/apps", (req, res) => {
       }
 
       if (sort === "rating") {
-        const filteredForSelectedGenreSortedByGenre = filteredForSelectedGenre.sort(
+        const filteredForSelectedGenreSortedByRating = filteredForSelectedGenre.sort(
           (a, b) => (b.Rating > a.Rating ? 1 : a.Rating > b.Rating ? -1 : 0)
         );
-        res.json(filteredForSelectedGenreSortedByGenre);
+        res.json(filteredForSelectedGenreSortedByRating);
       }
 
       // res.json(filteredForSelectedGenre);
